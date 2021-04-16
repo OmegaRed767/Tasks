@@ -3,7 +3,7 @@ const colors = {
   grey: '#2a2a2a',
   white: '#fff',
   link: '#43BEE5',
-  title: '#408697',
+  title: '#43BEE5',
   min: '#E9322E',
 };
 export default colors;

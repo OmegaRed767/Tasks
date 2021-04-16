@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {
   Text,
   View,
@@ -12,22 +12,28 @@ import {
 //style
 import styles from '../Styles/Styles.FlatListTask';
 //movie data
-import {movie_names} from '../Data/MovieNames';
+// import {movie_names} from '../Data/MovieNames';
 //icons
 import {bin, like, plus} from '../Icon/Icon';
 //color
 import colors from '../Colors/colors';
+//react-redux
+import {connect} from 'react-redux';
+import {Add_Movie, Remove_Movied, Refresh} from '../Redux/Actions/MovieAction';
 
 const FlatListTask = props => {
-  const [data, set_data] = useState(movie_names);
+  // const [data, set_data] = useState(movie_names);
+  const [data, set_data] = useState(props.movie_names);
   const [show_desc, set_show_desc] = useState([]);
   const [liked_movies, set_liked_movies] = useState([]);
   const [refreshing, set_refreshing] = useState(false);
+
   //handelRefresh
   const handelRefresh = () => {
     set_refreshing(prev => !prev);
     setTimeout(() => {
-      set_data(movie_names);
+      props.Refresh();
+      // set_data(props.movie_names);
       set_refreshing(prev => !prev);
     }, 1000);
   };
@@ -43,8 +49,9 @@ const FlatListTask = props => {
   };
   //like and unlike
   const handelLIke = (like_unlike, movie_id) => {
+    let check = liked_movies.indexOf(like_unlike);
     let new_arr = liked_movies.slice();
-    if (like_unlike === -1) {
+    if (check === -1) {
       new_arr.push(movie_id);
       return set_liked_movies(new_arr);
     }
@@ -52,8 +59,7 @@ const FlatListTask = props => {
   };
   //handel delete
   const handeldelete = _id => {
-    let new_arr = data.slice();
-    set_data(new_arr.filter(lol => lol._id !== _id));
+    props.Remove_Movied(_id);
   };
   const renderItem = ({item}) => (
     <View style={styles.movie_container}>
@@ -63,8 +69,7 @@ const FlatListTask = props => {
 
       <Image source={{uri: item.img}} style={styles.movie_poster} />
       <View style={styles.icon_container}>
-        <TouchableOpacity
-          onPress={() => handelLIke(liked_movies.indexOf(item._id), item._id)}>
+        <TouchableOpacity onPress={() => handelLIke(item._id, item._id)}>
           {like(
             liked_movies.indexOf(item._id) === -1 ? colors.white : colors.min,
           )}
@@ -104,7 +109,7 @@ const FlatListTask = props => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handelRefresh} />
         }
-        data={data}
+        data={props.movie_names}
         renderItem={renderItem}
         keyExtractor={item => item._id.toString()}
         contentContainerStyle={{paddingBottom: 80}}
@@ -128,7 +133,7 @@ const FlatListTask = props => {
           position: 'absolute',
           right: 30,
           bottom: 30,
-          elevation: 5,
+          elevation: 15,
         }}>
         <TouchableOpacity onPress={() => props.navigation.navigate('AddMovie')}>
           {plus}
@@ -137,4 +142,15 @@ const FlatListTask = props => {
     </View>
   );
 };
-export default FlatListTask;
+const mapStateToProps = state => {
+  return {
+    movie_names: state.movie_names,
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    Remove_Movied: id => dispatch(Remove_Movied(id)),
+    Refresh: () => dispatch(Refresh()),
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(FlatListTask);

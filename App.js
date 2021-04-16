@@ -33,7 +33,7 @@ const App = () => {
   return (
     <View style={{flex: 1}}>
       <NavigationContainer>
-        <StatusBar backgroundColor={colors.black} />
+        <StatusBar backgroundColor={colors.grey} barStyle="light-content" />
         <MyStack />
       </NavigationContainer>
     </View>
